@@ -1,0 +1,19 @@
+.numberInput {
+    width: 3em;
+}
+
+#textIcon {
+    font-size: 30px;
+    position: relative;
+    top: -15px;
+    left: 5px;
+}
+
+.elevate {
+    position: relative;
+    top: -2px;
+}
+
+#playDiv {
+    display: none;
+}
