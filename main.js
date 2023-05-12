@@ -26,7 +26,7 @@ s.init = function () {
 
     s.fgColor = s.getCookie('fgc') || '#0000FF'; // columns
     s.setCookie('fgc', s.fgColor, s.cookieExDays);
-    s.bgColor = s.getCookie('bgc') || '#0000FF'; // columns
+    s.bgColor = s.getCookie('bgc') || '#FF0000'; // columns
     s.setCookie('bgc', s.bgColor, s.cookieExDays);
 
     s.playerId = s.getCookie('playerId'); // if does not exist will return empty string

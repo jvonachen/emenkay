@@ -86,6 +86,6 @@ setInterval(function () {
 }, autoSaveMS);
 
 // listen for requests
-app.listen(PORT, () => {
+app.listen(PORT, 'localhost', () => {
     console.log(`Listening on port ${PORT}`);
 });
