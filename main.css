@@ -17,3 +17,11 @@
 #playDiv {
     display: none;
 }
+
+.foreground {
+    fill: #0000FF;
+}
+
+.background {
+    fill: #FF0000;
+}

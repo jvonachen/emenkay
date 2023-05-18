@@ -8,11 +8,11 @@ s.init = function () {
     s.svgNS = 'http://www.w3.org/2000/svg';
 
     s.cookieExDays = 365;
-    s.em = s.getCookie('em') || 3; // columns
+    s.em = parseInt(s.getCookie('em')) || 3; // columns
     s.setCookie('em', s.em, s.cookieExDays);
-    s.en = s.getCookie('en') || 3; // rows
+    s.en = parseInt(s.getCookie('en')) || 3; // rows
     s.setCookie('em', s.em, s.cookieExDays);
-    s.kay = s.getCookie('kay') || 3; // number of sequence to win
+    s.kay = parseInt(s.getCookie('kay')) || 3; // number of sequence to win
     s.setCookie('kay', s.kay, s.cookieExDays);
 
     s.maxViewbox = 1000;
@@ -29,7 +29,7 @@ s.init = function () {
     s.bgColor = s.getCookie('bgc') || '#FF0000'; // columns
     s.setCookie('bgc', s.bgColor, s.cookieExDays);
 
-    s.playerId = s.getCookie('playerId'); // if does not exist will return empty string
+    s.playerId = parseInt(s.getCookie('playerId')); // if does not exist will return empty string
 
     s.resize();
     window.onresize = s.resize;
@@ -89,6 +89,15 @@ s.getCookie = function(cname) {
 }
 
 s.startAttract = function () {
+    for (let i = 0; i < s.en; i++) { // rows
+        for (let j = 0; j < s.em; j++) { // columns
+            const eventGroup = s.g(`eg-${i}-${j}`);
+            eventGroup.onclick = null;
+            eventGroup.addEventListener('click', function () {
+                s.cycleControl(j, i);
+            });
+        }
+    }
     s.attractIntervalHandle = setInterval(function () {
         const row = Math.floor(Math.random() * s.en);
         const column = Math.floor(Math.random() * s.em);
@@ -165,9 +174,7 @@ s.newBoard = function () {
 
             // this group gets the background image and events
             let eventGroup = document.createElementNS(s.svgNS, 'g');
-            eventGroup.addEventListener('click', function () {
-                s.cycleControl(j, i);
-            });
+            eventGroup.id = `eg-${i}-${j}`;
             boardGroup.appendChild(eventGroup);
 
             // add this background to each event group permanently

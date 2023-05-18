@@ -23,13 +23,78 @@ s.startControl = function() {
             }
             if (parsed.board !== undefined) {
                 // The server won the coin flip and went first
-                console.log(parsed.board);
-                console.log('computer won coin flip');
+                for (let i = 0; i < s.en; i++) { // rows
+                    for (let j = 0; j < s.em; j++) { // columns
+                        s.model[i][j].state = parsed.board[i][j];
+                        const eventGroup = s.g(`eg-${i}-${j}`);
+                        eventGroup.onclick = null;
+                        eventGroup.addEventListener('click', function () {
+                            s.myMove(i, j);
+                        });
+                    }
+                }
+                s.updateBoard();
             } else {
                 console.log('player one coin flip');
             }
-            // attach new event handlers to the svg groups
         }); // What is returned is the new game id.
+
+    for (let i = 0; i < s.en; i++) { // rows
+        for (let j = 0; j < s.em; j++) { // columns
+            s.g(`eg-${i}-${j}`).addEventListener('click', function () {
+                if(s.model[i][j].state === 0) {
+                    s.model[i][j].state = 1;
+                    s.updateBoard();
+                    s.yourTurn();
+                }
+            });
+        }
+    }
+}
+
+s.myMove = function(i, j) {
+    const model = s.model[i][j];
+    if(model.state === 0) model.state = 1;
+}
+
+s.yourTurn = function() {
+    const url = new URL('http://localhost:5000/yourTurn');
+
+    const boardStates = [];
+    for (let i = 0; i < s.en; i++) { // rows
+        boardStates.push([]);
+        for (let j = 0; j < s.em; j++) { // columns
+            boardStates[i][j] = s.model[i][j].state;
+        }
+    }
+
+    const params = { board:boardStates, playerId:s.playerId, gameId:s.gameId };
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params)
+    };
+    fetch(url, requestOptions)
+        .then(p => p.text())
+        .then(rs => {
+            const parsed = JSON.parse(rs);
+            for (let i = 0; i < s.en; i++) { // rows
+                for (let j = 0; j < s.em; j++) { // columns
+                    s.model[i][j].state = parsed.board[i][j];
+                }
+            }
+            s.updateBoard();
+            switch(parsed.wldi) {
+                case 'win': console.log('computer won :('); break;
+                case 'lose': console.log('computer lost! :)'); break;
+                case 'draw': console.log('it\'s a draw.'); break;
+                case 'inPlay': console.log('Still in play.'); break;
+                default: console.log('unknown game state.'); break;
+            }
+        })
+        .catch(error => {
+            console.error('There was an error!', error);
+        });
 }
 
 s.stopControl = function() {
@@ -71,12 +136,14 @@ s.initControl = function (value) {
 s.bgcControl = function (value) {
     s.bgColor = value;
     s.setCookie('bgc', s.bgColor, s.cookieExDays)
+    s.bgcView();
     s.newBoard();
 }
 
 s.fgcControl = function (value) {
     s.fgColor = value;
     s.setCookie('fgc', s.fgColor, s.cookieExDays)
+    s.fgcView();
     s.newBoard();
 }
 
@@ -94,7 +161,6 @@ s.rcControl = function() {
 
 s.cycleControl = function (column, row) {
     const model = s.model[row][column];
-    // This will be a lot more complicated in the future :)
     switch (model.state) {
         case 0:
             model.state = 1;
