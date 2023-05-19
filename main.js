@@ -64,6 +64,8 @@ s.init = function () {
     s.kayView();
     s.bgcView();
     s.fgcView();
+
+    s.statusSpan = s.g('statusSpan');
 }
 
 s.setCookie = function(cname, cvalue, exdays) {
@@ -89,13 +91,13 @@ s.getCookie = function(cname) {
 }
 
 s.startAttract = function () {
+    s.mode = 'attract';
     for (let i = 0; i < s.en; i++) { // rows
         for (let j = 0; j < s.em; j++) { // columns
             const eventGroup = s.g(`eg-${i}-${j}`);
-            eventGroup.onclick = null;
-            eventGroup.addEventListener('click', function () {
+            eventGroup.onclick = function () {
                 s.cycleControl(j, i);
-            });
+            };
         }
     }
     s.attractIntervalHandle = setInterval(function () {

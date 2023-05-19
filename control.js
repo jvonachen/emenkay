@@ -1,4 +1,4 @@
-s.startControl = function() {
+s.startControl = function () {
     s.g('attractDiv').style.display = 'none';
     s.g('playDiv').style.display = 'inline';
     clearInterval(s.attractIntervalHandle);
@@ -7,8 +7,8 @@ s.startControl = function() {
 
     const url = new URL('http://localhost:5000/start');
 
-    const params = {em:s.em, en:s.en, kay:s.kay};
-    if(s.playerId !== '') {
+    const params = {em: s.em, en: s.en, kay: s.kay};
+    if (s.playerId !== '') {
         params.playerId = s.playerId;
     }
     url.search = new URLSearchParams(params).toString();
@@ -27,37 +27,25 @@ s.startControl = function() {
                     for (let j = 0; j < s.em; j++) { // columns
                         s.model[i][j].state = parsed.board[i][j];
                         const eventGroup = s.g(`eg-${i}-${j}`);
-                        eventGroup.onclick = null;
-                        eventGroup.addEventListener('click', function () {
-                            s.myMove(i, j);
-                        });
+                        eventGroup.onclick = function () {
+                            const model = s.model[i][j];
+                            if (model.state === 0) model.state = 1;
+                            s.yourTurn();
+                        };
                     }
                 }
-                s.updateBoard();
             } else {
                 console.log('player one coin flip');
             }
+            s.updateBoard(); // in case the computer won the coin toss
         }); // What is returned is the new game id.
 
-    for (let i = 0; i < s.en; i++) { // rows
-        for (let j = 0; j < s.em; j++) { // columns
-            s.g(`eg-${i}-${j}`).addEventListener('click', function () {
-                if(s.model[i][j].state === 0) {
-                    s.model[i][j].state = 1;
-                    s.updateBoard();
-                    s.yourTurn();
-                }
-            });
-        }
-    }
+    s.statusSpan.textContent = '';
+    s.mode = 'play';
+    s.g('kaySpan').textContent = s.kay;
 }
 
-s.myMove = function(i, j) {
-    const model = s.model[i][j];
-    if(model.state === 0) model.state = 1;
-}
-
-s.yourTurn = function() {
+s.yourTurn = function () {
     const url = new URL('http://localhost:5000/yourTurn');
 
     const boardStates = [];
@@ -68,10 +56,10 @@ s.yourTurn = function() {
         }
     }
 
-    const params = { board:boardStates, playerId:s.playerId, gameId:s.gameId };
+    const params = {board: boardStates, playerId: s.playerId, gameId: s.gameId};
     const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(params)
     };
     fetch(url, requestOptions)
@@ -84,12 +72,25 @@ s.yourTurn = function() {
                 }
             }
             s.updateBoard();
-            switch(parsed.wldi) {
-                case 'win': console.log('computer won :('); break;
-                case 'lose': console.log('computer lost! :)'); break;
-                case 'draw': console.log('it\'s a draw.'); break;
-                case 'inPlay': console.log('Still in play.'); break;
-                default: console.log('unknown game state.'); break;
+            switch (parsed.wldi) {
+                case 'win':
+                    s.removeAllEventHandlers();
+                    s.statusSpan.textContent = 'computer won, you lose :(';
+                    break;
+                case 'lose':
+                    s.removeAllEventHandlers();
+                    s.statusSpan.textContent = 'you\'re a winner!';
+                    break;
+                case 'draw':
+                    s.removeAllEventHandlers();
+                    s.statusSpan.textContent = 'Alright, we\'ll call it a draw. -The Black Knight';
+                    break;
+                case 'inPlay':
+                    s.statusSpan.textContent = 'in-play';
+                    break;
+                default:
+                    s.statusSpan.textContent = 'chaotic state';
+                    break;
             }
         })
         .catch(error => {
@@ -97,14 +98,22 @@ s.yourTurn = function() {
         });
 }
 
-s.stopControl = function() {
+s.removeAllEventHandlers = function() {
+    for (let i = 0; i < s.en; i++) { // rows
+        for (let j = 0; j < s.em; j++) { // columns
+            s.g(`eg-${i}-${j}`).onclick = null;
+        }
+    }
+}
+
+s.stopControl = function () {
     s.g('playDiv').style.display = 'none';
     s.g('attractDiv').style.display = 'inline';
-    s.startAttract();
     s.newBoard();
+    s.startAttract();
 
     const url = new URL('http://localhost:5000/stop');
-    const params = { gameId:s.gameId };
+    const params = {gameId: s.gameId};
     url.search = new URLSearchParams(params).toString();
     fetch(url).then(); // no need to do anything with this.  Just letting the server know we are done with this game.
 }
@@ -147,8 +156,11 @@ s.fgcControl = function (value) {
     s.newBoard();
 }
 
-s.rcControl = function() {
-    function rc() { return `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`; }
+s.rcControl = function () {
+    function rc() {
+        return `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;
+    }
+
     s.bgColor = rc();
     s.setCookie('bgc', s.bgColor, s.cookieExDays)
     s.bgcView();

@@ -46,11 +46,44 @@ app.get('/start', (req, res) => {
             board[en][em] = 0; // blank
         }
     }
-    database.currentGames.push({id:database.nextGameId, started:Date.now(), kay:q.kay, board:board});
+
+    // make the patterns for this game
+    const kay = parseInt(q.kay);
+
+    const horPat = [];
+    horPat.push([]);
+    for (let column = 0; column < kay; column++) {
+        horPat[0][column] = 1;
+    }
+
+    const verPat = [];
+    for (let row = 0; row < kay; row++) {
+        verPat.push([1]);
+    }
+
+    const bksPat = []; // backslash pattern
+    for (let row = 0; row < kay; row++) {
+        bksPat.push([]);
+        for (let column = 0; column < kay; column++) {
+            bksPat[row].push([]);
+            if(row === column) {
+                bksPat[row][column] = 1; // a marked square
+            } else {
+                bksPat[row][column] = 0; // any mark
+            }
+        }
+    }
+
+    // make a copy of the backslash pattern
+    const fwsPat = JSON.parse(JSON.stringify(bksPat)); // forward slash pattern
+    fwsPat.reverse(); // This reverses in place
+
+    database.currentGames.push({id:database.nextGameId, started:Date.now(), kay:kay, board:board, horPat:horPat,
+        verPat:verPat, bksPat:bksPat, fwsPat:fwsPat});
     responseObject.gameId = database.nextGameId;
     database.nextGameId++;
 
-    if(q.playerId === undefined) { // player is first time player and did not have a cookie.
+    if(isNaN(q.playerId)) { // player is first time player and did not have a cookie.
         database.players.push({id:database.nextPlayerId, lastPlayed:Date.now()});
         responseObject.playerId = database.nextPlayerId;
         database.nextPlayerId++;
@@ -79,30 +112,21 @@ app.post('/yourTurn', (req, res) => {
     database.currentGames[gameIndex].board = b.board;
     database.players[playerIndex].lastPlayed = Date.now();
 
+
     // Did the player win?
-    const horPat = [];
-    horPat.push([]);
-    for (let column = 0; column < s.em; column++) horPat[0][column] = 1;
-
-    const verPat = [];
-    horPat.push([]);
-    for (let column = 0; column < s.em; column++) horPat[0][column] = 1;
-
-
-    for (let row = 0; row < b.board.length - 1; row++) {
-        for (let column = 0; column < b.board[0].length - 1; column++) {
-            if(b.board[column][row] !== 1) continue;
-            if(
-                (b.board[column + 1][row] === 2) ||
-                (b.board[column][row + 1] === 2) ||
-                (b.board[column + 1][row + 1] === 2)
-            ) {
-
-            }
+    responseObject.wldi = 'inPlay'
+    if (allMatch(1, b.board, gameIndex)) {
+        responseObject.wldi = 'lose'; // computer lost
+    } else {
+        const moveReturn = move(gameIndex);
+        if(allMatch(2, database.currentGames[gameIndex].board, gameIndex)) {
+            responseObject.wldi = 'win'; // computer won
+        }
+        if(responseObject.wldi !== 'win' && moveReturn === 'drawMaybe') {
+            responseObject.wldi = 'draw';
         }
     }
 
-    responseObject.wldi = move(gameIndex); // win, lose, draw, or inPlay?
     responseObject.board = database.currentGames[gameIndex].board;
     res.end(JSON.stringify(responseObject));
 });
@@ -116,11 +140,64 @@ function move(gameIndex) {
             if(currentGame.board[en][em] === 0) moves.push([en, em]);
         }
     }
-    if(moves.length === 0) return 'draw';
+    if (moves.length === 0) return 'draw';
     const move = moves[Math.floor(Math.random() * moves.length)];
 
     currentGame.board[move[0]][move[1]] = 2;
-    return 'inPlay';
+    if (moves.length === 1) return 'drawMaybe';
+    else return 'inPlay';
+}
+
+function allMatch(playerMark, board, gameIndex) {
+    let returnVal = false;
+
+    const game = database.currentGames[gameIndex];
+    if (
+        matchPattern(playerMark, game.horPat, board) === 1 ||
+        matchPattern(playerMark, game.verPat, board) === 1 ||
+        matchPattern(playerMark, game.bksPat, board) === 1 ||
+        matchPattern(playerMark, game.fwsPat, board) === 1
+    ) {
+        returnVal = true;
+    }
+
+    return returnVal;
+}
+
+// Does this pattern exist in this board?
+function matchPattern(playerMark, pattern, board) {
+    // is this pattern too big for the board?
+    if (pattern.length > board.length || pattern[0].length > board[0].length) {
+        return 3;
+    }
+
+    let found = false;
+    for (let boardRow = 0; boardRow < board.length - (pattern.length - 1); boardRow++) {
+       for (let boardColumn = 0; boardColumn < board[0].length - (pattern[0].length - 1); boardColumn++) {
+           let patternFound = true;
+           for (let patternRow = 0; patternRow < pattern.length; patternRow++) {
+               for (let patternColumn = 0; patternColumn < pattern[0].length; patternColumn++) {
+                   // if even one exception is found then this pattern does not match with this position on the board
+                   if (
+                       pattern[patternRow][patternColumn] === 1 &&
+                       board[boardRow + patternRow][boardColumn + patternColumn] !== playerMark
+                   ) {
+                       patternFound = false;
+                       break;
+                   }
+               }
+               if (!patternFound) break;
+           }
+           if (patternFound) {
+               found = true;
+               break;
+           }
+       }
+       if (found) break;
+    }
+
+    // returns 0-false, 1-true, 3-pattern too big
+    if (found) return 1; else return 0;
 }
 
 // one of the users has quit the game

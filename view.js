@@ -27,12 +27,12 @@ s.boardView = function (column, row) {
         case 0:
             break;
         case 1:
-            eventGroup.onclick = null;
+            if (s.mode === 'play') eventGroup.onclick = null;
             group.appendChild(model.cross1);
             group.appendChild(model.cross2);
             break;
         case 2:
-            eventGroup.onclick = null;
+            if (s.mode === 'play') eventGroup.onclick = null;
             group.appendChild(model.circle);
             break;
         default:
@@ -40,7 +40,7 @@ s.boardView = function (column, row) {
     }
 }
 
-s.updateBoard = function() {
+s.updateBoard = function () {
     for (let i = 0; i < s.en; i++) { // rows
         for (let j = 0; j < s.em; j++) { // columns
             s.boardView(j, i);
@@ -48,7 +48,7 @@ s.updateBoard = function() {
     }
 }
 
-s.imageLogoView = function() {
+s.imageLogoView = function () {
     s.g('imageLogoSVG').innerHTML = `
         <rect width="100%" height="100%" x="0" y="0" fill="${s.fgColor}"></rect>
         <rect width="471" height="471" x="-1" y="-1" fill="${s.bgColor}"></rect>
