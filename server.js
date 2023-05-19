@@ -8,6 +8,11 @@ const fs = require('fs');
 const autoSaveMS = 60 * 1000;
 const gameDurationMS = 24 * 60 * 60 * 1000;
 
+const cors = require('cors');
+app.use(cors({
+    origin: 'https://www.section.io'
+}));
+
 // serve up files local to the server
 app.use(express.static('.'));
 
