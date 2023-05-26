@@ -5,7 +5,8 @@ s.startControl = function () {
     // detach the event handlers for attract mode
     s.newBoard();
 
-    const url = new URL('http://localhost:5000/start');
+    s.baseURL = 'https://localhost:443/';
+    const url = new URL(`${s.baseURL}start`);
 
     const params = {em: s.em, en: s.en, kay: s.kay};
     if (s.playerId !== '') {
@@ -46,7 +47,7 @@ s.startControl = function () {
 }
 
 s.yourTurn = function () {
-    const url = new URL('http://localhost:5000/yourTurn');
+    const url = new URL(`${s.baseURL}yourTurn`);
 
     const boardStates = [];
     for (let i = 0; i < s.en; i++) { // rows
@@ -112,7 +113,7 @@ s.stopControl = function () {
     s.newBoard();
     s.startAttract();
 
-    const url = new URL('http://localhost:5000/stop');
+    const url = new URL(`${s.baseURL}stop`);
     const params = {gameId: s.gameId};
     url.search = new URLSearchParams(params).toString();
     fetch(url).then(); // no need to do anything with this.  Just letting the server know we are done with this game.
