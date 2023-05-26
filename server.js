@@ -20,7 +20,7 @@ const httpsOptions = {
 };
 
 app.use(cors({
-    origin: 'https://www.section.io'
+    origin: 'https://kalebproductions.com'
 }));
 
 // serve up files local to the server
