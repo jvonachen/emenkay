@@ -5,7 +5,8 @@ s.startControl = function () {
     // detach the event handlers for attract mode
     s.newBoard();
 
-    s.baseURL = 'https://localhost:443/';
+    s.baseURL = `https://${s.fetchDN}:443/`;
+    s.fetchOptions = { mode:'no-cors' };
     const url = new URL(`${s.baseURL}start`);
 
     const params = {em: s.em, en: s.en, kay: s.kay};
@@ -13,9 +14,10 @@ s.startControl = function () {
         params.playerId = s.playerId;
     }
     url.search = new URLSearchParams(params).toString();
-    fetch(url)
+    fetch(url, s.fetchOptions)
         .then(p => p.text())
         .then(rs => {
+            console.log(rs);
             const parsed = JSON.parse(rs);
             s.gameId = parsed.gameId;
             if (parsed.playerId !== undefined) {
@@ -60,7 +62,7 @@ s.yourTurn = function () {
     const params = {board: boardStates, playerId: s.playerId, gameId: s.gameId};
     const requestOptions = {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type':'application/json'},
         body: JSON.stringify(params)
     };
     fetch(url, requestOptions)
@@ -116,7 +118,7 @@ s.stopControl = function () {
     const url = new URL(`${s.baseURL}stop`);
     const params = {gameId: s.gameId};
     url.search = new URLSearchParams(params).toString();
-    fetch(url).then(); // no need to do anything with this.  Just letting the server know we are done with this game.
+    fetch(url, s.fetchOptions).then(); // no need to do anything with this.  Just letting the server know we are done with this game.
 }
 
 s.emControl = function (value) {
