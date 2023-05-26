@@ -1,14 +1,24 @@
 #!/usr/bin/env node
 
+const https = require('https');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const PORT = 5000;
+const PORT = 443;
 const fs = require('fs');
 const autoSaveMS = 60 * 1000;
 const gameDurationMS = 24 * 60 * 60 * 1000;
-
 const cors = require('cors');
+
+const httpsOptions = {
+    key: fs.readFileSync('kalebProductions.key'),
+    cert: fs.readFileSync('kalebproductions_com.chained.crt'),
+    ca: [
+        fs.readFileSync('kalebproductions_com.chained.crt'),
+        fs.readFileSync('kalebproductions_com.chained.crt')
+    ]
+};
+
 app.use(cors({
     origin: 'https://www.section.io'
 }));
@@ -222,6 +232,5 @@ setInterval(function () {
 }, autoSaveMS);
 
 // listen for requests
-app.listen(PORT, () => {
-    console.log(`Listening on port ${PORT}`);
-});
+const httpsServer = https.createServer(httpsOptions, app);
+httpsServer.listen(PORT, process.env.kalebProductionsDN);
