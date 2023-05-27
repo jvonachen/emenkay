@@ -233,4 +233,5 @@ setInterval(function () {
 
 // listen for requests
 const httpsServer = https.createServer(httpsOptions, app);
-httpsServer.listen(PORT, process.env.kalebProductionsDN);
+const independent = JSON.parse(fs.readFileSync('independent.json').toString());
+httpsServer.listen(PORT, independent.fetchDN);

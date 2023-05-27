@@ -5,7 +5,7 @@ s.startControl = function () {
     // detach the event handlers for attract mode
     s.newBoard();
 
-    s.baseURL = `https://${s.fetchDN}:443/`;
+    s.baseURL = `https://${s.fetchDN}:${s.port}/`;
     s.fetchOptions = { mode:'no-cors' };
     const url = new URL(`${s.baseURL}start`);
 
@@ -17,7 +17,6 @@ s.startControl = function () {
     fetch(url, s.fetchOptions)
         .then(p => p.text())
         .then(rs => {
-            console.log(rs);
             const parsed = JSON.parse(rs);
             s.gameId = parsed.gameId;
             if (parsed.playerId !== undefined) {

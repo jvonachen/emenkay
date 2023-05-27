@@ -1,4 +1,6 @@
-const s = {}; // a substitute for using global variables, call it singleton
+import independent from './independent.json' assert { type: 'json' };
+s.fetchDN = independent.fetchDN;
+s.port = independent.port;
 
 s.g = function (id) {
     return document.getElementById(id);
