@@ -4,7 +4,6 @@ const https = require('https');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const PORT = 443;
 const fs = require('fs');
 const autoSaveMS = 60 * 1000;
 const gameDurationMS = 24 * 60 * 60 * 1000;
@@ -234,4 +233,4 @@ setInterval(function () {
 // listen for requests
 const httpsServer = https.createServer(httpsOptions, app);
 const independent = JSON.parse(fs.readFileSync('independent.json').toString());
-httpsServer.listen(PORT, independent.fetchDN);
+httpsServer.listen(independent.port, independent.fetchDN);
