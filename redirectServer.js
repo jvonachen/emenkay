@@ -14,14 +14,16 @@ http.use(
     })
 );
 
+const independent = JSON.parse(fs.readFileSync('independent.json').toString());
+
 // set up a route to redirect http to https
 http.get('*', function(req, res) {
-    res.redirect('https://' + req.headers.host + req.url);
-    console.log('redirecting');
+    const url = `https://${req.headers.host}:${independent.sport}${req.url}`;
+    res.redirect(url);
+    console.log(`redirecting to ${url}`);
 })
 
 // have it listen on the non-secure port
-const independent = JSON.parse(fs.readFileSync('independent.json').toString());
 http.listen(independent.port, independent.fetchDN, function() {
     console.log(`EmEnKay unsecure redirect server listening on port ${independent.port}`);
 });
