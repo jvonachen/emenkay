@@ -18,11 +18,12 @@ const independent = JSON.parse(fs.readFileSync('independent.json').toString());
 
 // set up a route to redirect http to https
 http.get('*', function(req, res) {
-    console.log(`req.headers: ${JSON.stringify(req.headers)}, req.url: ${req.url})`);
-    const url = `https://${req.headers.host}${req.url}`;
+    const host = req.headers.host.replace(/:[0-9]+/, '');
+    console.log(`req.headers.host: ${req.headers.host}, host: ${host}`);
+    const url = `https://${host}:${independent.sport}${req.url}`;
     res.redirect(url);
     console.log(`redirecting to ${url}`);
-})
+});
 
 // have it listen on the non-secure port
 http.listen(independent.port, independent.fetchDN, function() {
