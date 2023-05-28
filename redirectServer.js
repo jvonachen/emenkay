@@ -18,7 +18,7 @@ const independent = JSON.parse(fs.readFileSync('independent.json').toString());
 
 // set up a route to redirect http to https
 http.get('*', function(req, res) {
-    const url = `https://${req.headers.host}:${independent.sport}${req.url}`;
+    const url = `https://${req.headers.host}:${req.url}`;
     res.redirect(url);
     console.log(`redirecting to ${url}`);
 })
