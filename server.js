@@ -231,6 +231,7 @@ setInterval(function () {
 }, autoSaveMS);
 
 // listen for requests
-const httpsServer = https.createServer(httpsOptions, app);
 const independent = JSON.parse(fs.readFileSync('independent.json').toString());
-httpsServer.listen(independent.port, independent.fetchDN);
+https.createServer(httpsOptions, app).listen(independent.sport, independent.fetchDN, function() {
+    console.log(`EmEnKay secure server listening on port ${independent.sport}`);
+});
