@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // set up plain http server
 const express = require('express');
 const fs = require('fs');

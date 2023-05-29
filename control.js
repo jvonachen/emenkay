@@ -135,7 +135,6 @@ s.enControl = function (value) {
 s.kayControl = function (value) {
     s.kay = value;
     s.setCookie('kay', s.kay, s.cookieExDays)
-    s.newBoard();
 }
 
 s.initControl = function (value) {

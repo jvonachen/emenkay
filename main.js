@@ -1,6 +1,6 @@
 import independent from './independent.json' assert { type: 'json' };
 s.fetchDN = independent.fetchDN;
-s.port = independent.port;
+s.port = independent.sport;
 
 s.g = function (id) {
     return document.getElementById(id);
@@ -31,7 +31,7 @@ s.init = function () {
     s.bgColor = s.getCookie('bgc') || '#FF0000'; // columns
     s.setCookie('bgc', s.bgColor, s.cookieExDays);
 
-    s.playerId = parseInt(s.getCookie('playerId')); // if does not exist will return empty string
+    s.playerId = parseInt(s.getCookie('playerId')); // if it does not exist will return empty string
 
     s.resize();
     window.onresize = s.resize;
